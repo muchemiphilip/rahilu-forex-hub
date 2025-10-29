@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
 const products = [
   {
     name: "Forex Trading Bot",
-    price: "$9,999",
+    price: 9999,
+    priceDisplay: "$9,999",
     period: "One-time",
     description: "Fully automated AI-powered trading bot",
     features: [
@@ -18,7 +21,8 @@ const products = [
   },
   {
     name: "Trading Signals - Monthly",
-    price: "KES 50,000",
+    price: 50000,
+    priceDisplay: "KES 50,000",
     period: "per month",
     description: "Professional trading signals daily",
     features: [
@@ -31,7 +35,8 @@ const products = [
   },
   {
     name: "Full Subscription",
-    price: "KES 150,000",
+    price: 150000,
+    priceDisplay: "KES 150,000",
     period: "per month",
     description: "Complete trading package",
     features: [
@@ -45,7 +50,8 @@ const products = [
   },
   {
     name: "Account Management",
-    price: "KES 500,000",
+    price: 500000,
+    priceDisplay: "KES 500,000",
     period: "deposit",
     description: "Let experts trade for you",
     features: [
@@ -59,6 +65,22 @@ const products = [
 ];
 
 const Products = () => {
+  const { addItem } = useCart();
+  const { toast } = useToast();
+
+  const handleAddToCart = (product: typeof products[0]) => {
+    addItem({
+      id: product.name,
+      name: product.name,
+      price: product.price,
+      description: product.description,
+    });
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    });
+  };
+
   return (
     <section id="shop" className="py-24">
       <div className="container mx-auto px-4">
@@ -95,7 +117,7 @@ const Products = () => {
               </div>
 
               <div className="mb-6">
-                <div className="text-4xl font-bold text-primary">{product.price}</div>
+                <div className="text-4xl font-bold text-primary">{product.priceDisplay}</div>
                 <div className="text-sm text-muted-foreground mt-1">{product.period}</div>
               </div>
 
@@ -112,8 +134,10 @@ const Products = () => {
                 className={`w-full ${
                   product.popular ? "bg-primary hover:bg-primary/90" : "bg-secondary hover:bg-muted"
                 }`}
+                onClick={() => handleAddToCart(product)}
               >
-                Get Started
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Add to Cart
               </Button>
             </div>
           ))}
