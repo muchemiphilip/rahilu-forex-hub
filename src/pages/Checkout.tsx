@@ -35,6 +35,7 @@ const Checkout = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
+      // Save purchases to database
       for (const item of items) {
         await supabase.from('product_purchases').insert({
           user_id: user?.id,
@@ -42,6 +43,23 @@ const Checkout = () => {
           product_price: item.price.toString(),
           payment_status: 'completed'
         });
+      }
+
+      // Send confirmation email
+      const { error: emailError } = await supabase.functions.invoke('send-purchase-email', {
+        body: {
+          email: formData.email,
+          name: formData.fullName,
+          products: items.map(item => ({
+            name: item.name,
+            price: item.price.toString()
+          })),
+          totalPrice: totalPrice
+        }
+      });
+
+      if (emailError) {
+        console.error("Email sending failed:", emailError);
       }
 
       toast({
@@ -52,6 +70,7 @@ const Checkout = () => {
       clearCart();
       navigate('/');
     } catch (error) {
+      console.error("Payment error:", error);
       toast({
         title: "Payment Failed",
         description: "There was an error processing your payment. Please try again.",
