@@ -68,14 +68,14 @@ const Contact = () => {
                 <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
                   Full Name
                 </label>
-                <Input id="name" placeholder="John Doe" />
+                <Input id="name" placeholder="Rahilu Were" />
               </div>
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                   Email Address
                 </label>
-                <Input id="email" type="email" placeholder="john@example.com" />
+                <Input id="email" type="email" placeholder="wererahilu@example.com" />
               </div>
 
               <div>
