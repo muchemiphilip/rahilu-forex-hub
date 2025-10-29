@@ -1,22 +1,24 @@
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
   const navLinks = [
-    { name: "Home", href: "#home" },
-    { name: "About Us", href: "#about" },
-    { name: "Shop", href: "#shop" },
-    { name: "Lessons", href: "#lessons" },
-    { name: "Signals", href: "#signals" },
-    { name: "Webinars", href: "#webinars" },
-    { name: "Meetups", href: "#meetups" },
-    { name: "Gallery", href: "#gallery" },
-    { name: "Blog", href: "#blog" },
-    { name: "Contact", href: "#contact" },
+    { name: "Home", href: "/", isRoute: true },
+    { name: "About Us", href: "/about", isRoute: true },
+    { name: "Shop", href: "/#shop", isRoute: false },
+    { name: "Lessons", href: "/lessons", isRoute: true },
+    { name: "Signals", href: "/signals", isRoute: true },
+    { name: "Webinars", href: "/webinars", isRoute: true },
+    { name: "Meetups", href: "/#meetups", isRoute: false },
+    { name: "Gallery", href: "/#gallery", isRoute: false },
+    { name: "Blog", href: "/#blog", isRoute: false },
+    { name: "Contact", href: "/#contact", isRoute: false },
   ];
 
   return (
@@ -35,13 +37,23 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
-              >
-                {link.name}
-              </a>
+              link.isRoute ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                >
+                  {link.name}
+                </Link>
+              ) : (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                >
+                  {link.name}
+                </a>
+              )
             ))}
           </nav>
 
@@ -70,14 +82,25 @@ const Header = () => {
           <div className="lg:hidden py-6 border-t border-border">
             <nav className="flex flex-col gap-4">
               {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="text-foreground hover:text-primary transition-colors py-2"
-                >
-                  {link.name}
-                </a>
+                link.isRoute ? (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-foreground hover:text-primary transition-colors py-2"
+                  >
+                    {link.name}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-foreground hover:text-primary transition-colors py-2"
+                  >
+                    {link.name}
+                  </a>
+                )
               ))}
               <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
                 <Button variant="ghost">Sign In</Button>
