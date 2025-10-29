@@ -9,6 +9,7 @@ const products = [
     price: 9999,
     priceDisplay: "$9,999",
     period: "One-time",
+    priceId: "price_1SNQphD0QI0PnZs4IccIvlj3",
     description: "Fully automated AI-powered trading bot",
     features: [
       "24/7 Automated Trading",
@@ -24,6 +25,7 @@ const products = [
     price: 50000,
     priceDisplay: "KES 50,000",
     period: "per month",
+    priceId: "price_1SNQqGD0QI0PnZs4YqVeBHlF",
     description: "Professional trading signals daily",
     features: [
       "Daily Trading Signals",
@@ -38,6 +40,7 @@ const products = [
     price: 150000,
     priceDisplay: "KES 150,000",
     period: "per month",
+    priceId: "price_1SNQqVD0QI0PnZs4zBJaJwm7",
     description: "Complete trading package",
     features: [
       "All Trading Signals",
@@ -53,6 +56,7 @@ const products = [
     price: 500000,
     priceDisplay: "KES 500,000",
     period: "deposit",
+    priceId: "price_1SNQqhD0QI0PnZs4Fp4kLOag",
     description: "Let experts trade for you",
     features: [
       "Professional Management",
@@ -73,6 +77,7 @@ const Products = () => {
       id: product.name,
       name: product.name,
       price: product.price,
+      priceId: product.priceId,
       description: product.description,
     });
     toast({

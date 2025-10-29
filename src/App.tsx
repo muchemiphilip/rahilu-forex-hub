@@ -11,6 +11,7 @@ import Lessons from "./pages/Lessons";
 import Signals from "./pages/Signals";
 import Webinars from "./pages/Webinars";
 import Checkout from "./pages/Checkout";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/signals" element={<Signals />} />
             <Route path="/webinars" element={<Webinars />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

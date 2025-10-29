@@ -2,78 +2,54 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { CreditCard, Lock } from "lucide-react";
+import { CreditCard, ShoppingBag } from "lucide-react";
 
 const Checkout = () => {
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    fullName: "",
-    cardNumber: "",
-    expiry: "",
-    cvc: "",
-  });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCheckout = async () => {
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // Get auth token for authenticated users (optional)
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          items: items.map(item => ({
+            name: item.name,
+            price: item.price,
+            priceId: item.priceId,
+          }))
+        },
+        headers: session?.access_token ? {
+          Authorization: `Bearer ${session.access_token}`
+        } : {}
+      });
 
-      // Save purchases to database
-      for (const item of items) {
-        await supabase.from('product_purchases').insert({
-          user_id: user?.id,
-          product_name: item.name,
-          product_price: item.price.toString(),
-          payment_status: 'completed'
+      if (error) throw error;
+
+      if (data?.url) {
+        // Redirect to Stripe Checkout
+        window.open(data.url, '_blank');
+        toast({
+          title: "Redirecting to payment",
+          description: "Opening Stripe checkout in a new tab...",
         });
       }
-
-      // Send confirmation email
-      const { error: emailError } = await supabase.functions.invoke('send-purchase-email', {
-        body: {
-          email: formData.email,
-          name: formData.fullName,
-          products: items.map(item => ({
-            name: item.name,
-            price: item.price.toString()
-          })),
-          totalPrice: totalPrice
-        }
-      });
-
-      if (emailError) {
-        console.error("Email sending failed:", emailError);
-      }
-
-      toast({
-        title: "Payment Successful!",
-        description: "Your purchase has been completed. Check your email for details.",
-      });
-
-      clearCart();
-      navigate('/');
     } catch (error) {
-      console.error("Payment error:", error);
+      console.error("Checkout error:", error);
       toast({
-        title: "Payment Failed",
-        description: "There was an error processing your payment. Please try again.",
+        title: "Checkout Failed",
+        description: "There was an error starting the checkout process. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -86,8 +62,10 @@ const Checkout = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-20 text-center">
+          <ShoppingBag className="h-20 w-20 mx-auto text-muted-foreground mb-4" />
           <h1 className="text-3xl font-bold mb-4">Your cart is empty</h1>
-          <Button onClick={() => navigate('/')}>Continue Shopping</Button>
+          <p className="text-muted-foreground mb-6">Add some products to your cart to continue</p>
+          <Button onClick={() => navigate('/#shop')}>Continue Shopping</Button>
         </div>
         <Footer />
       </div>
@@ -99,113 +77,53 @@ const Checkout = () => {
       <Header />
       <div className="container mx-auto px-4 py-12">
         <h1 className="text-4xl font-bold mb-8">Checkout</h1>
-        <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Payment Information
-                </CardTitle>
-                <CardDescription>Enter your payment details securely</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="your@email.com"
-                    />
+        <div className="max-w-4xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle>Order Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {items.map((item) => (
+                <div key={item.id} className="flex justify-between items-start pb-4 border-b">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-lg">{item.name}</h4>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
                   </div>
-                  <div>
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      name="fullName"
-                      required
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                      placeholder="John Doe"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="cardNumber">Card Number</Label>
-                    <Input
-                      id="cardNumber"
-                      name="cardNumber"
-                      required
-                      value={formData.cardNumber}
-                      onChange={handleInputChange}
-                      placeholder="1234 5678 9012 3456"
-                      maxLength={19}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="expiry">Expiry Date</Label>
-                      <Input
-                        id="expiry"
-                        name="expiry"
-                        required
-                        value={formData.expiry}
-                        onChange={handleInputChange}
-                        placeholder="MM/YY"
-                        maxLength={5}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="cvc">CVC</Label>
-                      <Input
-                        id="cvc"
-                        name="cvc"
-                        required
-                        value={formData.cvc}
-                        onChange={handleInputChange}
-                        placeholder="123"
-                        maxLength={3}
-                      />
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                    <Lock className="h-4 w-4 mr-2" />
-                    {loading ? "Processing..." : `Pay $${totalPrice}`}
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Your payment information is encrypted and secure
-                  </p>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-start pb-4 border-b">
-                    <div>
-                      <h4 className="font-semibold">{item.name}</h4>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
-                    </div>
-                    <span className="font-bold">${item.price}</span>
-                  </div>
-                ))}
-                <div className="flex justify-between items-center pt-4 text-xl font-bold">
-                  <span>Total:</span>
-                  <span>${totalPrice}</span>
+                  <span className="font-bold text-lg">${item.price.toLocaleString()}</span>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              ))}
+              <div className="flex justify-between items-center pt-4 text-2xl font-bold border-t">
+                <span>Total:</span>
+                <span className="text-primary">${totalPrice.toLocaleString()}</span>
+              </div>
+
+              <div className="bg-muted p-6 rounded-lg space-y-2">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Secure Payment with Stripe
+                </h3>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>✓ Industry-leading payment security</li>
+                  <li>✓ Accepts all major credit cards (Visa, Mastercard, Amex)</li>
+                  <li>✓ Your payment information is never stored on our servers</li>
+                  <li>✓ Email confirmation sent automatically</li>
+                </ul>
+              </div>
+
+              <Button 
+                onClick={handleCheckout}
+                className="w-full" 
+                size="lg" 
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Proceed to Secure Payment"}
+              </Button>
+
+              <p className="text-xs text-muted-foreground text-center">
+                By completing this purchase, you agree to our terms and conditions
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <Footer />
