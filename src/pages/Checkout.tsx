@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CreditCard, ShoppingBag } from "lucide-react";
@@ -13,6 +14,7 @@ const Checkout = () => {
   const { items, totalPrice } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(false);
 
   const handleCheckout = async () => {
@@ -38,12 +40,17 @@ const Checkout = () => {
       if (error) throw error;
 
       if (data?.url) {
-        // Redirect to Stripe Checkout
-        window.open(data.url, '_blank');
-        toast({
-          title: "Redirecting to payment",
-          description: "Opening Stripe checkout in a new tab...",
-        });
+        // On mobile, redirect in the same window to avoid popup blockers
+        if (isMobile) {
+          window.location.href = data.url;
+        } else {
+          // On desktop, open in a new tab
+          window.open(data.url, '_blank');
+          toast({
+            title: "Redirecting to payment",
+            description: "Opening Stripe checkout in a new tab...",
+          });
+        }
       }
     } catch (error) {
       console.error("Checkout error:", error);
