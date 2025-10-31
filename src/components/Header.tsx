@@ -104,7 +104,10 @@ const Header = () => {
                   </a>
                 )
               ))}
-              <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
+              <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-border">
+                <div className="flex justify-center">
+                  <Cart />
+                </div>
                 <Button variant="ghost">Sign In</Button>
                 <Button className="bg-primary hover:bg-primary/90">Get Started</Button>
               </div>
