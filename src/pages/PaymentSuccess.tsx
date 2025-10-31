@@ -90,7 +90,12 @@ const PaymentSuccess = () => {
                   <Button onClick={() => navigate("/")} variant="outline">
                     Return to Home
                   </Button>
-                  <Button onClick={() => navigate("/#shop")}>
+                  <Button onClick={() => {
+                    navigate("/");
+                    setTimeout(() => {
+                      document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" });
+                    }, 100);
+                  }}>
                     Continue Shopping
                   </Button>
                 </div>
