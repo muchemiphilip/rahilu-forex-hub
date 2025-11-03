@@ -69,20 +69,27 @@ const Header = () => {
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden text-foreground"
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Mobile Cart and Menu Button */}
+          <div className="flex lg:hidden items-center gap-3">
+            <Cart />
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-foreground"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="lg:hidden py-6 border-t border-border">
             <nav className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3 mb-4 pb-4 border-b border-border">
+                <Button variant="ghost">Sign In</Button>
+                <Button className="bg-primary hover:bg-primary/90">Get Started</Button>
+              </div>
               {navLinks.map((link) => (
                 link.isRoute ? (
                   <Link
@@ -104,13 +111,6 @@ const Header = () => {
                   </a>
                 )
               ))}
-              <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-border">
-                <div className="flex justify-center">
-                  <Cart />
-                </div>
-                <Button variant="ghost">Sign In</Button>
-                <Button className="bg-primary hover:bg-primary/90">Get Started</Button>
-              </div>
             </nav>
           </div>
         )}

@@ -72,7 +72,7 @@ serve(async (req) => {
       line_items: lineItems,
       mode: "payment",
       success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/`,
+      cancel_url: `${req.headers.get("origin")}/payment-failed`,
       metadata: {
         items: JSON.stringify(items.map((item: any) => ({ 
           name: item.name, 
