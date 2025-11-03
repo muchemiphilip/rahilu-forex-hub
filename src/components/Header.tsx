@@ -30,9 +30,8 @@ const Header = () => {
           <div className="flex items-center gap-3">
             <img src={logo} alt="Rahilu Forex Trading" className="h-12 w-12" />
             <div className="hidden md:block">
-              <h1 className="text-xl font-bold">
-                <span className="text-success">Rahilu</span>{" "}
-                <span className="text-primary">Forex</span>
+              <h1 className="text-xl font-bold text-success">
+                Rahilu Forex
               </h1>
               <p className="text-xs text-muted-foreground">Trading Excellence</p>
             </div>
